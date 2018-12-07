@@ -1,0 +1,12 @@
+[Unit]
+Requires=systemd-sysctl.service
+After=systemd-sysctl.service
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/sbin/turbo-boost-ctl 
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target

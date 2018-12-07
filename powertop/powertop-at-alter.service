@@ -1,0 +1,12 @@
+[Unit]
+Requires=powertop.service
+After=powertop.service
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/sbin/powertop-custom
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target

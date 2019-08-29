@@ -19,4 +19,6 @@ chmod +x /usr/bin/sshfs-up
 cp -f sshfs-down.sh /usr/bin/sshfs-down
 chmod +x /usr/bin/sshfs-down
 
+cp -f options /usr/bin/sshfs-options
+
 echo "Installation done. Now commands sshfs-ctl, sshfs-up and sshfs-down are available."

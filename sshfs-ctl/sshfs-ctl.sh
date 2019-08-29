@@ -56,9 +56,9 @@ then
     mkdir -p ${mount_point}
 fi
 
-if [[ -f "options" ]]
+if [[ -z "$options" ]]
 then
-    options=`cat options`
+    options=`cat /usr/bin/sshfs-options`
 fi
 
 # compose command

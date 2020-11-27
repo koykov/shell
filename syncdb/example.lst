@@ -1,0 +1,5 @@
+# copy the whole table
+table0:*
+
+# copy certain fields
+table1:select id, payload, updated_at from table1 where deleted_at = 0

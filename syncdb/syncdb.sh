@@ -118,7 +118,8 @@ fi
 # parse source dsn url
 read src_schema src_user src_pass src_host src_port src_db<<<$(dsn_url_parse ${src_dsn})
 # ping server
-ping_res=`mysqlshow -h ${src_host} -P ${src_port} -u ${src_user} -p${src_pass} ${src_db} 2>/dev/null | grep -o ${src_db} | head -n 1`
+ping_res=`mysqlshow -h ${src_host} -P ${src_port} -u ${src_user} -p${src_pass} | grep -o ${src_db} | head -n 1 | sed -e 's/^|//' -e 's/|$//' | xargs`
+echo $ping_res
 if [[ "$ping_res" != "${src_db}" ]]; then
     echo "Source db: failed ping. Credentials are wrong or server is unavailable now."
     exit 1
@@ -132,7 +133,7 @@ fi
 # parse destination dsn url
 read dst_schema dst_user dst_pass dst_host dst_port dst_db<<<$(dsn_url_parse ${dst_dsn})
 # ping server
-ping_res=`mysqlshow -h ${dst_host} -P ${dst_port} -u ${dst_user} -p${dst_pass} ${dst_db} 2>/dev/null | grep -o ${dst_db} | head -n 1`
+ping_res=`mysqlshow -h ${dst_host} -P ${dst_port} -u ${dst_user} -p${dst_pass} 2>/dev/null | grep -o ${dst_db} | head -n 1 | sed -e 's/^|//' -e 's/|$//' | xargs`
 if [[ "$ping_res" != "${dst_db}" ]]; then
     echo "Destination db: failed ping. Credentials are wrong or server is unavailable now."
     exit 1

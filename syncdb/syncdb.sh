@@ -181,7 +181,6 @@ do
     fi
 
     echo " * ${db}.${table}"
-
     # dump schema and data
     echo -e "   * dump ... \c"
 
@@ -205,7 +204,7 @@ do
 
     if [[ "$full_table" == "1" ]]; then
         # dump the whole table - easy peasy with builtin mysqldump command
-        mysqldump --single-transaction -t --skip-comments -h ${src_host} -P ${src_port} -u ${src_user} -p${src_pass} ${db} ${table} > ${dml}
+        mysqldump --single-transaction --no-tablespaces -t --skip-comments -h ${src_host} -P ${src_port} -u ${src_user} -p${src_pass} ${db} ${table} > ${dml}
         tuples_cnt=`mysql -h ${src_host} -P ${src_port} -u ${src_user} -p${src_pass} ${db} --batch --silent -e "select count(*) from $db.$table"`
     else
         # more stronger case - partial dump
@@ -214,7 +213,12 @@ do
         # save raw batch data to dml temp file
         mysql -h ${src_host} -P ${src_port} -u ${src_user} -p${src_pass} ${db} --batch --silent -e "$script" | sed 's/"//g' | awk -F'\t' -v OFS="\",\"" '{ $1=$1 } 1' | sed -r 's/~/`/' | awk -F"~" '{print "(\""$1"\")"}' | sed '$!N;s/"NULL"/NULL/;P;D' > ${dml_tmp}
         # format raw batch data as mysql's insert query
-        fields=`echo ${script} | grep -o -P '(?<=select).*(?=from)' | sed -r "s/if\([^=]+='',\s*'<nil>',[^\)]+\)\s*as//" | tr -d ' '`
+        script1=$script
+        re='(.*) [a-zA-Z0-9\.]+ as ([a-zA-Z0-9]+)(.*)'
+        while [[ $script1 =~ $re ]]; do
+            script1="${BASH_REMATCH[1]} ${BASH_REMATCH[2]}${BASH_REMATCH[3]}"
+        done
+        fields=`echo ${script1} | grep -o -P '(?<=select).*(?=from)' | sed -r "s/if\([^=]+='',\s*'<nil>',[^\)]+\)\s*as//" | tr -d ' '`
         ins_prefix="insert into ${db}.${table}(${fields}) values"
         counter=0
         while IFS= read -r ins_line

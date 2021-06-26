@@ -232,7 +232,10 @@ do
             counter=$((counter+1))
         done < "$dml_tmp"
 
-        tuples_cnt=`wc -l ${dml} | awk '{print $1}'`
+        tuples_cnt=0
+        if [ -f "$dml" ]; then
+            tuples_cnt=`wc -l ${dml} | awk '{print $1}'`
+        fi
     fi
 
     # dump finished
@@ -246,7 +249,9 @@ do
     # import schema
     mysql -h ${dst_host} -P ${dst_port} -u ${dst_user} -p${dst_pass} ${db} -f < ${ddl}
     # import data
-    mysql -h ${dst_host} -P ${dst_port} -u ${dst_user} -p${dst_pass} ${db} -f < ${dml}
+    if [ -f "$dml" ]; then
+        mysql -h ${dst_host} -P ${dst_port} -u ${dst_user} -p${dst_pass} ${db} -f < ${dml}
+    fi
 
     # import finished
 

@@ -67,6 +67,7 @@ src_dsn=""
 dst_dsn=""
 list_file=""
 verbose=0
+inc_mode=0
 cur_dir=`pwd`
 tmp_dir="__syncdb_tmp"
 
@@ -90,6 +91,7 @@ while [[ "$#" -gt 0 ]]; do
         -s|--source) src_dsn="$2"; shift;;
         -d|--destination) dst_dsn="$2"; shift;;
         -l|--list-file) list_file="$2"; shift;;
+        -i|--include-mode) inc_mode=1;;
         -v|--verbose) verbose=1;;
         *) arg="$1"; shift;;
     esac;
@@ -119,7 +121,6 @@ fi
 read src_schema src_user src_pass src_host src_port src_db<<<$(dsn_url_parse ${src_dsn})
 # ping server
 ping_res=`mysqlshow -h ${src_host} -P ${src_port} -u ${src_user} -p${src_pass} | grep -o ${src_db} | head -n 1 | sed -e 's/^|//' -e 's/|$//' | xargs`
-echo $ping_res
 if [[ "$ping_res" != "${src_db}" ]]; then
     echo "Source db: failed ping. Credentials are wrong or server is unavailable now."
     exit 1
@@ -156,12 +157,30 @@ fi
 # disable fk check
 mysql -h ${dst_host} -P ${dst_port} -u ${dst_user} -p${dst_pass} ${src_db} -e "SET FOREIGN_KEY_CHECKS=0"
 
+if [[ "$inc_mode" == "0" ]]
+then
+    echo "copy $src_host/$src_db to $dst_host/$dst_db:"
+fi
+
 # walk over list file
-echo "copy $src_host/$src_db to $dst_host/$dst_db:"
 while IFS= read -r line
 do
     # skip empty lines and comments
     if [[ "$line" == "" || "$line" =~ ^#.* ]]; then
+        continue
+    fi
+
+    # check include expression
+    re='^\.\s.*$'
+    if [[ $line =~ $re ]]; then
+        inc_dir=`dirname $list_file`
+        inc_file=`echo $line | sed -e 's/\. *//'`
+        if [[ "$inc_dir" ]]; then
+          inc_file="$inc_dir/$inc_file"
+        fi
+        echo " * import $inc_file"
+        cmd="sh $0 --source \"$src_dsn\" --destination \"$dst_dsn\" --list-file $inc_file --include-mode"
+        eval "$cmd"
         continue
     fi
 
@@ -261,13 +280,16 @@ done < "$list_file"
 # enable back fk check
 mysql -h ${dst_host} -P ${dst_port} -u ${dst_user} -p${dst_pass} ${src_db} -e "SET FOREIGN_KEY_CHECKS=1"
 
-echo "copying finished"
+if [[ "$inc_mode" == "0" ]]
+then
+    echo "copying finished"
 
-# cleanup
-if [[ "$verbose" == "1" ]]; then
-    echo -e "Cleanup ... \c"
-fi
-rm -rf ${tmp_dir}
-if [[ "$verbose" == "1" ]]; then
-    echo -e "done"
+    # cleanup
+    if [[ "$verbose" == "1" ]]; then
+        echo -e "Cleanup ... \c"
+    fi
+    rm -rf ${tmp_dir}
+    if [[ "$verbose" == "1" ]]; then
+        echo -e "done"
+    fi
 fi

@@ -12,10 +12,10 @@ while [[ "$#" -gt 0 ]]; do
         -t|--tidy) tidy=1;;
         -v|--vendor) vendor=1;;
         "$ftv")
-          if [[ "$1" =~ [f] ]]; then force=1; fi
-          if [[ "$1" =~ [t] ]]; then tidy=1; fi
-          if [[ "$1" =~ [v] ]]; then vendor=1; fi
-          ;;
+            if [[ "$1" =~ [f] ]]; then force=1; fi
+            if [[ "$1" =~ [t] ]]; then tidy=1; fi
+            if [[ "$1" =~ [v] ]]; then vendor=1; fi
+            ;;
         *) shift;;
     esac;
     shift;
@@ -32,16 +32,33 @@ do
     mod="${line%%|*}"
     ver="${line#*|}"
     cmdDlg="$cmdDlg \"$mod\" \"$ver\" off"
+    mods+=("$mod")
 done <<< "$raw"
 
 cmdDlg="$cmdDlg --output-fd 1"
 
-choices=$(eval "$cmdDlg")
-echo "$choices"
-
-if [ -z "$choices" ]; then
-    echo "No modules to update"
-    exit 0
+if [ $force == 0 ]; then
+    choices=$(eval "$cmdDlg")
+    if [ -z "$choices" ]; then
+        echo "No modules to update"
+        exit 0
+    fi
+    IFS=' ' read -ra mods <<< "$choices"
 fi
 
-echo "Updating ..."
+echo "Updating chosen modules:"
+for mod in "${mods[@]}"
+do
+	eval "go get $mod"
+done
+echo "done"
+
+if [ $tidy == 1 ]; then
+    echo "Apply \"go mod tidy\" command"
+    go mod tidy
+fi
+
+if [ $vendor == 1 ]; then
+    echo "Apply \"go mod vendor\" command"
+    go mod vendor
+fi

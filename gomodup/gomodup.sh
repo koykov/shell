@@ -22,8 +22,15 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 echo -n "Checking modules versions ... "
-raw=$(go list -u -mod=mod -f '{{if (and (not (or .Main .Indirect)) .Update)}}{{.Path}}|{{.Version}} => {{.Update.Version}}{{end}}' -m all)
-echo "done"
+raw=$(go list -u -mod=mod -f '{{if (and (not (or .Main .Indirect)) .Update)}}{{.Path}}|{{.Version}} => {{.Update.Version}}{{end}}' -m all 2>&1)
+exc=$?
+if [ $exc == 0 ]; then
+    echo "done"
+else
+    echo "failed"
+    echo "error: $raw"
+    exit 0
+fi
 
 cmdDlg="dialog --keep-tite --checklist \"Modules to update\" 0 0 0"
 
@@ -51,7 +58,6 @@ for mod in "${mods[@]}"
 do
 	eval "go get $mod"
 done
-echo "done"
 
 if [ $tidy == 1 ]; then
     echo "Apply \"go mod tidy\" command"
@@ -62,3 +68,5 @@ if [ $vendor == 1 ]; then
     echo "Apply \"go mod vendor\" command"
     go mod vendor
 fi
+
+echo "done"

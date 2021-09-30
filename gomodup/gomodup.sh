@@ -27,8 +27,7 @@ exc=$?
 if [ $exc == 0 ]; then
     echo "done"
 else
-    echo "failed"
-    echo "error: $raw"
+    echo -e "failed with error:\n$raw"
     exit 0
 fi
 
@@ -51,9 +50,11 @@ if [ $force == 0 ]; then
         exit 0
     fi
     IFS=' ' read -ra mods <<< "$choices"
+    echo "Updating chosen modules:"
+else
+    echo "Updating modules in force mode:"
 fi
 
-echo "Updating chosen modules:"
 for mod in "${mods[@]}"
 do
 	eval "go get $mod"

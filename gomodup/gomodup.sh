@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
 
+help="Usage: gomodup [OPTION]...
+  or:  gomodup
+Interactive dialog to update outdated go modules.
+
+Options:
+  -f, --force    update all possible modules without interactive
+                   dialog
+  -t, --tidy     execute \"go mod tidy\" command afterward
+  -v, --vendor   execute \"go mod vendor\" command afterward
+      --help     display this help and exit
+
+By default, gomodup only updates go.mod file. To apply updates you need
+execute \"go mod tidy\" command manually or specify option --tidy (or -t).
+If your project use vendor directory you need run \"go mod vendor\" or
+specify option --vendor (or -v).
+You may combine options, eg: gomodup -tv
+"
+
 force=0
 tidy=0
 vendor=0
@@ -15,6 +33,10 @@ while [[ "$#" -gt 0 ]]; do
             if [[ "$1" =~ [f] ]]; then force=1; fi
             if [[ "$1" =~ [t] ]]; then tidy=1; fi
             if [[ "$1" =~ [v] ]]; then vendor=1; fi
+            ;;
+        -h|--help)
+            echo "$help"
+            exit 0
             ;;
         *) shift;;
     esac;

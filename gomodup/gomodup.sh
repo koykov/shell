@@ -53,6 +53,11 @@ else
     exit 0
 fi
 
+if [ -z "$raw" ]; then
+    echo "No outdated modules found"
+    exit 0
+fi
+
 cmdDlg="dialog --keep-tite --checklist \"Modules to update\" 0 0 0"
 
 while IFS= read -r line

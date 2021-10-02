@@ -37,3 +37,29 @@ Of course, you can combine options like `-ft` or `-tv` ...
 ## Installation
 
 Just run `sudo ./install.sh`.
+
+## Known `go list` problems
+
+`gomodup` may fail with errors like
+```shell
+go list -m: loading module retractions for github.com/coreos/go-systemd@v0.0.0-20180511133405-39ca1b05acc7: no matching versions for query "latest"
+go list -m: loading module retractions for gopkg.in/cheggaaa/pb.v1@v1.0.25: version "v1.0.29" invalid: go.mod has non-....v1 module path "github.com/cheggaaa/pb" at revision v1.0.29
+go list -m: loading module retractions for gopkg.in/fsnotify.v1@v1.4.7: version "v1.5.1" invalid: go.mod has non-....v1 module path "github.com/fsnotify/fsnotify" at revision v1.5.1
+```
+
+This is a known `go list` problems and you need specify replace rules in `go.mod` file:
+* `github.com/coreos/go-systemd => github.com/coreos/go-systemd/v22 v22.3.2`
+* `gopkg.in/cheggaaa/pb.v1 => gopkg.in/cheggaaa/pb.v1 v1.0.25`
+* `gopkg.in/fsnotify.v1 => gopkg.in/fsnotify.v1 v1.4.7`
+
+Example:
+```shell
+replace github.com/coreos/go-systemd => github.com/coreos/go-systemd/v22 v22.3.2
+```
+or combinations like
+```shell
+replace (
+    github.com/coreos/go-systemd => github.com/coreos/go-systemd/v22 v22.3.2
+    gopkg.in/fsnotify.v1 => gopkg.in/fsnotify.v1 v1.4.7
+)
+```

@@ -55,37 +55,36 @@ fi
 
 if [ -z "$raw" ]; then
     echo "No outdated modules found"
-    exit 0
-fi
-
-cmdDlg="dialog --keep-tite --checklist \"Modules to update\" 0 0 0"
-
-while IFS= read -r line
-do
-    mod="${line%%|*}"
-    ver="${line#*|}"
-    cmdDlg="$cmdDlg \"$mod\" \"$ver\" off"
-    mods+=("$mod")
-done <<< "$raw"
-
-cmdDlg="$cmdDlg --output-fd 1"
-
-if [ $force == 0 ]; then
-    choices=$(eval "$cmdDlg")
-    if [ -z "$choices" ]; then
-        echo "No modules to update"
-        exit 0
-    fi
-    IFS=' ' read -ra mods <<< "$choices"
-    echo "Updating chosen modules:"
 else
-    echo "Updating modules in force mode:"
-fi
+    cmdDlg="dialog --keep-tite --checklist \"Modules to update\" 0 0 0"
 
-for mod in "${mods[@]}"
-do
-	eval "go get $mod"
-done
+    while IFS= read -r line
+    do
+        mod="${line%%|*}"
+        ver="${line#*|}"
+        cmdDlg="$cmdDlg \"$mod\" \"$ver\" off"
+        mods+=("$mod")
+    done <<< "$raw"
+
+    cmdDlg="$cmdDlg --output-fd 1"
+
+    if [ $force == 0 ]; then
+        choices=$(eval "$cmdDlg")
+        if [ -z "$choices" ]; then
+            echo "No modules to update"
+            exit 0
+        fi
+        IFS=' ' read -ra mods <<< "$choices"
+        echo "Updating chosen modules:"
+    else
+        echo "Updating modules in force mode:"
+    fi
+
+    for mod in "${mods[@]}"
+    do
+        eval "go get $mod"
+    done
+fi
 
 if [ $tidy == 1 ]; then
     echo "Apply \"go mod tidy\" command"

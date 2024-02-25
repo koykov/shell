@@ -2,14 +2,27 @@
 
 type=$1
 bench=$2
-count=$3
-time_=$4
 if [ -z "$bench" ]; then
     bench=.
+else
+    shift;
 fi
 if [ ! "$bench" == "." ]; then
     bench="^$bench\$"
+else
+    shift;
 fi
+
+count=""
+time_=""
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -c|--count) count="$2"; shift;;
+        -t|--time) time_="$2"; shift;;
+        *) arg="$1"; shift;;
+    esac;
+    shift;
+done
 if [ -z "$count" ]; then
     count=1
 fi

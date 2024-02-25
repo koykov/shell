@@ -2,13 +2,9 @@
 
 type=$1
 bench=$2
+shift;
 if [ -z "$bench" ]; then
     bench=.
-else
-    shift;
-fi
-if [ ! "$bench" == "." ]; then
-    bench="^$bench\$"
 else
     shift;
 fi

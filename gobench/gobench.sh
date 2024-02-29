@@ -11,10 +11,12 @@ fi
 
 count=""
 time_=""
+timeout=""
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -c|--count) count="$2"; shift;;
         -t|--time) time_="$2"; shift;;
+        -o|--timeout) timeout="$2"; shift;;
         *) arg="$1"; shift;;
     esac;
     shift;
@@ -25,9 +27,12 @@ fi
 if [ -z "$time_" ]; then
     time_="1s"
 fi
+if [ -z "$timeout" ]; then
+    timeout="10m"
+fi
 
 case $type in
-    cpu) go test -o /tmp/cpuprofile.test -bench=$bench -benchmem -count=$count -benchtime=$time_ -cpuprofile /tmp/cpuprofile.out ; go tool pprof /tmp/cpuprofile.out ;;
-    mem) go test -o /tmp/memprofile.test -bench=$bench -benchmem -count=$count -benchtime=$time_ -memprofile /tmp/memprofile.out ; go tool pprof /tmp/memprofile.out ;;
+    cpu) go test -o /tmp/cpuprofile.test -bench=$bench -benchmem -count=$count -benchtime=$time_ -timeout=$timeout -cpuprofile /tmp/cpuprofile.out ; go tool pprof /tmp/cpuprofile.out ;;
+    mem) go test -o /tmp/memprofile.test -bench=$bench -benchmem -count=$count -benchtime=$time_ -timeout=$timeout -memprofile /tmp/memprofile.out ; go tool pprof /tmp/memprofile.out ;;
     *) echo "unknown type: $type" ;;
 esac

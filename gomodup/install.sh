@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-if (( $EUID != 0 )); then
+if [[ $EUID != 0 ]]; then
     echo "Please run as root or sudo." >&2
     exit 1
 fi

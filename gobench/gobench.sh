@@ -14,9 +14,9 @@ duration=""
 timeout=""
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -c|--count) count="$2"; shift;;
-        -d|--duration) duration="$2"; shift;;
-        -t|--timeout) timeout="$2"; shift;;
+        -n|-c|--count) count="$2"; shift;;
+        -d|-dur|--duration) duration="$2"; shift;;
+        -t|-to|--timeout) timeout="$2"; shift;;
         *) arg="$1"; shift;;
     esac;
     shift;

@@ -7,7 +7,7 @@ fi
 
 if [[ -z $(which sshfs) ]]; then
     echo "sshfs is not installed. Run 'sudo dnf install sshfs' to install it." >&2
-    #exit 1
+    exit 1
 fi
 
 cp -f sshfs-ctl.sh /usr/bin/sshfs-ctl

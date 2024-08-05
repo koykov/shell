@@ -18,4 +18,10 @@ fi
 cp -f ovpn3ctl.sh /usr/bin/ovpn3ctl
 chmod +x /usr/bin/ovpn3ctl
 
+cp -f ovpn3ctl.sh /usr/bin/ovpn3up
+chmod +x /usr/bin/ovpn3up
+
+cp -f ovpn3ctl.sh /usr/bin/ovpn3down
+chmod +x /usr/bin/ovpn3down
+
 echo "Installation done."

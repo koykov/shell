@@ -32,7 +32,7 @@ if [ -z "$timeout" ]; then
 fi
 
 case $type in
-    cpu) go test -o /tmp/cpuprofile.test -bench=$bench -benchmem -count=$count -benchtime=$duration -timeout=$timeout -cpuprofile /tmp/cpuprofile.out ; go tool pprof /tmp/cpuprofile.out ;;
-    mem) go test -o /tmp/memprofile.test -bench=$bench -benchmem -count=$count -benchtime=$duration -timeout=$timeout -memprofile /tmp/memprofile.out ; go tool pprof /tmp/memprofile.out ;;
+    cpu) go test -o /tmp/cpuprofile.test -test.bench=$bench -test.run -benchmem -count=$count -benchtime=$duration -timeout=$timeout -cpuprofile /tmp/cpuprofile.out ; go tool pprof /tmp/cpuprofile.out ;;
+    mem) go test -o /tmp/memprofile.test -test.bench=$bench -test.run -benchmem -count=$count -benchtime=$duration -timeout=$timeout -memprofile /tmp/memprofile.out ; go tool pprof /tmp/memprofile.out ;;
     *) echo "unknown type: $type" ;;
 esac
